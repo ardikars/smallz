@@ -223,6 +223,24 @@ unsigned_overflowing_ops!(u4);
 unsigned_wrapping_ops!(u2);
 unsigned_wrapping_ops!(u4);
 
+macro_rules! unsigned_from {
+    ($from:ty, $to:ty) => {
+        impl From<$from> for $to {
+            fn from(value: $from) -> $to {
+                value.0.into()
+            }
+        }
+    };
+}
+unsigned_from!(u2, u16);
+unsigned_from!(u2, u32);
+unsigned_from!(u2, u64);
+unsigned_from!(u2, u128);
+unsigned_from!(u4, u16);
+unsigned_from!(u4, u32);
+unsigned_from!(u4, u64);
+unsigned_from!(u4, u128);
+
 #[cfg(test)]
 mod tests {
     extern crate std;
