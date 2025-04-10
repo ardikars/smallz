@@ -269,6 +269,11 @@ to_slice_unit!(u16, u4, 16, 4, 0xf, 4);
 to_slice_unit!(u32, u4, 32, 4, 0xf, 8);
 to_slice_unit!(u64, u4, 64, 4, 0xf, 16);
 to_slice_unit!(u128, u4, 128, 4, 0xf, 32);
+to_slice_unit!(u8, u8, 8, 8, 0xff, 1);
+to_slice_unit!(u16, u8, 16, 8, 0xff, 2);
+to_slice_unit!(u32, u8, 32, 8, 0xff, 4);
+to_slice_unit!(u64, u8, 64, 8, 0xff, 8);
+to_slice_unit!(u128, u8, 128, 8, 0xff, 16);
 
 #[cfg(test)]
 mod tests {
