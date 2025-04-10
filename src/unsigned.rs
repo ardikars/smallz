@@ -9,7 +9,7 @@ use core::ops::{
 };
 
 macro_rules! unsigned {
-    ($name:ident, $base:ty, $bits:tt, $base_bits:tt) => {
+    ($name:ident, $base:ty, $bits:tt, $base_bits:tt, $slice:tt) => {
         #[allow(non_camel_case_types)]
         #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
         pub struct $name($base);
@@ -20,6 +20,16 @@ macro_rules! unsigned {
             pub const BITS: u32 = $bits;
             pub const MIN: $name = $name(0);
             pub const MAX: $name = $name(Self::MASK);
+
+            pub fn from_base(byte: $base) -> [$name; $slice] {
+                let mut v: [$name; $slice] = [$name(0); $slice];
+                let mut b: $base = $base_bits;
+                for i in 0..$slice {
+                    b -= $bits;
+                    v[i] = $name((byte >> b) & Self::MASK);
+                }
+                v
+            }
 
             pub fn leading_zeros(&self) -> u32 {
                 self.0.leading_zeros() - ($base_bits - Self::BITS)
@@ -202,32 +212,16 @@ macro_rules! unsigned_wrapping_ops {
     };
 }
 
-unsigned!(u2, u8, 2, 8);
-unsigned!(u3, u8, 3, 8);
-unsigned!(u4, u8, 4, 8);
-unsigned!(u5, u8, 5, 8);
-unsigned!(u6, u8, 6, 8);
-unsigned!(u7, u8, 7, 8);
+unsigned!(u2, u8, 2, 8, 4);
+unsigned!(u4, u8, 4, 8, 2);
 
 unsigned_ops!(u2);
-unsigned_ops!(u3);
 unsigned_ops!(u4);
-unsigned_ops!(u5);
-unsigned_ops!(u6);
-unsigned_ops!(u7);
 
 unsigned_overflowing_ops!(u2);
-unsigned_overflowing_ops!(u3);
 unsigned_overflowing_ops!(u4);
-unsigned_overflowing_ops!(u5);
-unsigned_overflowing_ops!(u6);
-unsigned_overflowing_ops!(u7);
 unsigned_wrapping_ops!(u2);
-unsigned_wrapping_ops!(u3);
 unsigned_wrapping_ops!(u4);
-unsigned_wrapping_ops!(u5);
-unsigned_wrapping_ops!(u6);
-unsigned_wrapping_ops!(u7);
 
 #[cfg(test)]
 mod tests {
@@ -250,6 +244,18 @@ mod tests {
         for n in 0..=255 {
             assert_eq!(u2::from(n), (n & u2::MASK).into());
         }
+    }
+
+    #[test]
+    fn test_unsigned_from_base() {
+        let slice = u4::from_base(1);
+        assert_eq!(slice[0], 0.into());
+        assert_eq!(slice[1], 1.into());
+        assert_eq!(slice.len(), 2);
+        let slice = u4::from_base(16);
+        assert_eq!(slice[0], 1.into());
+        assert_eq!(slice[1], 0.into());
+        assert_eq!(slice.len(), 2);
     }
 
     #[test]
