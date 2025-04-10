@@ -7,6 +7,7 @@ use core::ops::{
     Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Div, DivAssign,
     Mul, MulAssign, Not, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign,
 };
+use crate::ToSliceUnit;
 
 macro_rules! unsigned {
     ($name:ident, $base:ty, $bits:tt, $base_bits:tt, $slice:tt) => {
@@ -241,28 +242,31 @@ unsigned_from!(u4, u32);
 unsigned_from!(u4, u64);
 unsigned_from!(u4, u128);
 
-macro_rules! from_to {
-    ($method:tt, $from:ty, $to:ty, $from_bits:tt, $to_bits:tt, $to_mask:tt, $slice:tt) => {
-        pub fn $method(val: $from) -> [$to; $slice] {
-            let mut v: [$to; $slice] = [0.into(); $slice];
-            let mut b: $from = $from_bits;
-            for i in 0..$slice {
-                b -= $to_bits;
-                v[i] = <$to>::from(((val >> b) & $to_mask) as u8)
+
+macro_rules! to_slice_unit {
+    ($from:ty, $to:ty, $from_bits:tt, $to_bits:tt, $to_mask:tt, $slice:tt) => {
+        impl ToSliceUnit<$to, $slice> for $from {
+            fn to_slice_unit(&self) -> [$to; $slice] {
+                let mut v: [$to; $slice] = [0.into(); $slice];
+                let mut b: $from = $from_bits;
+                for i in 0..$slice {
+                    b -= $to_bits;
+                    v[i] = <$to>::from(((self >> b) & $to_mask) as u8)
+                }
+                v
             }
-            v
         }
     };
 }
 
-from_to!(from_u16_to_u2, u16, u2, 16, 2, 0x3, 8);
-from_to!(from_u32_to_u2, u32, u2, 32, 2, 0x3, 16);
-from_to!(from_u64_to_u2, u64, u2, 64, 2, 0x3, 32);
-from_to!(from_u128_to_u2, u128, u2, 128, 2, 0x3, 64);
-from_to!(from_u16_to_u4, u16, u4, 16, 4, 0xf, 4);
-from_to!(from_u32_to_u4, u32, u4, 32, 4, 0xf, 8);
-from_to!(from_u64_to_u4, u64, u4, 64, 4, 0xf, 16);
-from_to!(from_u128_to_u4, u128, u4, 128, 4, 0xf, 32);
+to_slice_unit!(u16, u2, 16, 2, 0x3, 8);
+to_slice_unit!(u32, u2, 32, 2, 0x3, 16);
+to_slice_unit!(u64, u2, 64, 2, 0x3, 32);
+to_slice_unit!(u128, u2, 128, 2, 0x3, 64);
+to_slice_unit!(u16, u4, 16, 4, 0xf, 4);
+to_slice_unit!(u32, u4, 32, 4, 0xf, 8);
+to_slice_unit!(u64, u4, 64, 4, 0xf, 16);
+to_slice_unit!(u128, u4, 128, 4, 0xf, 32);
 
 #[cfg(test)]
 mod tests {
