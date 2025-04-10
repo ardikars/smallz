@@ -19,6 +19,7 @@ macro_rules! unsigned {
             const MASK: $base = (1 << Self::BITS) - 1;
 
             pub const BITS: u32 = $bits;
+            pub const ZERO: $name = $name(0);
             pub const MIN: $name = $name(0);
             pub const MAX: $name = $name(Self::MASK);
 
