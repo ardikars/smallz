@@ -259,10 +259,12 @@ macro_rules! to_slice_unit {
     };
 }
 
+to_slice_unit!(u8, u2, 8, 2, 0x3, 4);
 to_slice_unit!(u16, u2, 16, 2, 0x3, 8);
 to_slice_unit!(u32, u2, 32, 2, 0x3, 16);
 to_slice_unit!(u64, u2, 64, 2, 0x3, 32);
 to_slice_unit!(u128, u2, 128, 2, 0x3, 64);
+to_slice_unit!(u8, u4, 8, 4, 0xf, 2);
 to_slice_unit!(u16, u4, 16, 4, 0xf, 4);
 to_slice_unit!(u32, u4, 32, 4, 0xf, 8);
 to_slice_unit!(u64, u4, 64, 4, 0xf, 16);
