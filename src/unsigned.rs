@@ -1,5 +1,6 @@
 extern crate alloc;
 
+use crate::{Convert};
 use alloc::fmt;
 use alloc::format;
 use alloc::string::String;
@@ -7,7 +8,6 @@ use core::ops::{
     Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Div, DivAssign,
     Mul, MulAssign, Not, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign,
 };
-use crate::ToSliceUnit;
 
 macro_rules! unsigned {
     ($name:ident, $base:ty, $bits:tt, $base_bits:tt, $slice:tt) => {
@@ -243,16 +243,25 @@ unsigned_from!(u4, u32);
 unsigned_from!(u4, u64);
 unsigned_from!(u4, u128);
 
-
 macro_rules! to_slice_unit {
     ($from:ty, $to:ty, $from_bits:tt, $to_bits:tt, $to_mask:tt, $slice:tt) => {
-        impl ToSliceUnit<$to, $slice> for $from {
+        impl Convert<$to, $slice> for $from {
             fn to_slice_unit(&self) -> [$to; $slice] {
                 let mut v: [$to; $slice] = [0.into(); $slice];
                 let mut b: $from = $from_bits;
                 for i in 0..$slice {
                     b -= $to_bits;
                     v[i] = <$to>::from(((self >> b) & $to_mask) as u8)
+                }
+                v
+            }
+
+            fn from_slice_unit(slice: [$to; $slice]) -> $from {
+                let mut v: $from = 0;
+                let mut b: $from = $from_bits;
+                for i in 0..$slice {
+                    b -= $to_bits;
+                    v |= <$from>::from(slice[i]) << b;
                 }
                 v
             }
