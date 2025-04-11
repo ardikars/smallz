@@ -24,6 +24,16 @@ macro_rules! unsigned {
             pub const MIN: $name = $name(0);
             pub const MAX: $name = $name(Self::MASK);
 
+            pub fn from_base(byte: $base) -> [$name; $slice] {
+                let mut v: [$name; $slice] = [$name(0); $slice];
+                let mut b: $base = $base_bits;
+                for i in 0..$slice {
+                    b -= $bits;
+                    v[i] = $name((byte >> b) & Self::MASK);
+                }
+                v
+            }
+
             pub fn leading_zeros(&self) -> u32 {
                 self.0.leading_zeros() - ($base_bits - Self::BITS)
             }
@@ -53,18 +63,6 @@ macro_rules! unsigned {
                 } else {
                     panic!("unsupported radix")
                 }
-            }
-        }
-
-        impl Convert<[$name; $slice], $base> for $name {
-            fn from_base(byte: $base) -> [$name; $slice] {
-                let mut v: [$name; $slice] = [$name(0); $slice];
-                let mut b: $base = $base_bits;
-                for i in 0..$slice {
-                    b -= $bits;
-                    v[i] = $name((byte >> b) & Self::MASK);
-                }
-                v
             }
         }
 
@@ -245,22 +243,6 @@ unsigned_from!(u4, u16);
 unsigned_from!(u4, u32);
 unsigned_from!(u4, u64);
 unsigned_from!(u4, u128);
-
-macro_rules! convert {
-    ($base:tt, $to:tt) => {
-        impl Convert<$to, $base> for $to {
-            fn from_base(base: $base) -> $to {
-                $to::from_be_bytes(base)
-            }
-        }
-    };
-}
-
-convert!([u8; 1], u8);
-convert!([u8; 2], u16);
-convert!([u8; 4], u32);
-convert!([u8; 8], u64);
-convert!([u8; 16], u128);
 
 #[cfg(test)]
 mod tests {

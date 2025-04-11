@@ -7,8 +7,3 @@ mod unsigned;
 pub type u2 = unsigned::u2;
 #[allow(non_camel_case_types)]
 pub type u4 = unsigned::u4;
-
-pub trait Convert<T, B> {
-    fn from_base(base: B) -> T;
-}
-
