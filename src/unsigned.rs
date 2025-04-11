@@ -1,6 +1,6 @@
 extern crate alloc;
 
-use crate::{Convert};
+use crate::Convert;
 use alloc::fmt;
 use alloc::format;
 use alloc::string::String;
@@ -23,16 +23,6 @@ macro_rules! unsigned {
             pub const ONE: $name = $name(1);
             pub const MIN: $name = $name(0);
             pub const MAX: $name = $name(Self::MASK);
-
-            pub fn from_base(byte: $base) -> [$name; $slice] {
-                let mut v: [$name; $slice] = [$name(0); $slice];
-                let mut b: $base = $base_bits;
-                for i in 0..$slice {
-                    b -= $bits;
-                    v[i] = $name((byte >> b) & Self::MASK);
-                }
-                v
-            }
 
             pub fn leading_zeros(&self) -> u32 {
                 self.0.leading_zeros() - ($base_bits - Self::BITS)
@@ -63,6 +53,18 @@ macro_rules! unsigned {
                 } else {
                     panic!("unsupported radix")
                 }
+            }
+        }
+
+        impl Convert<[$name; $slice], $base> for $name {
+            fn from_base(byte: $base) -> [$name; $slice] {
+                let mut v: [$name; $slice] = [$name(0); $slice];
+                let mut b: $base = $base_bits;
+                for i in 0..$slice {
+                    b -= $bits;
+                    v[i] = $name((byte >> b) & Self::MASK);
+                }
+                v
             }
         }
 
@@ -243,48 +245,6 @@ unsigned_from!(u4, u16);
 unsigned_from!(u4, u32);
 unsigned_from!(u4, u64);
 unsigned_from!(u4, u128);
-
-macro_rules! to_slice_unit {
-    ($from:ty, $to:ty, $from_bits:tt, $to_bits:tt, $to_mask:tt, $slice:tt) => {
-        impl Convert<$to, $slice> for $from {
-            fn to_slice_unit(&self) -> [$to; $slice] {
-                let mut v: [$to; $slice] = [0.into(); $slice];
-                let mut b: $from = $from_bits;
-                for i in 0..$slice {
-                    b -= $to_bits;
-                    v[i] = <$to>::from(((self >> b) & $to_mask) as u8)
-                }
-                v
-            }
-
-            fn from_slice_unit(slice: [$to; $slice]) -> $from {
-                let mut v: $from = 0;
-                let mut b: $from = $from_bits;
-                for i in 0..$slice {
-                    b -= $to_bits;
-                    v |= <$from>::from(slice[i]) << b;
-                }
-                v
-            }
-        }
-    };
-}
-
-to_slice_unit!(u8, u2, 8, 2, 0x3, 4);
-to_slice_unit!(u16, u2, 16, 2, 0x3, 8);
-to_slice_unit!(u32, u2, 32, 2, 0x3, 16);
-to_slice_unit!(u64, u2, 64, 2, 0x3, 32);
-to_slice_unit!(u128, u2, 128, 2, 0x3, 64);
-to_slice_unit!(u8, u4, 8, 4, 0xf, 2);
-to_slice_unit!(u16, u4, 16, 4, 0xf, 4);
-to_slice_unit!(u32, u4, 32, 4, 0xf, 8);
-to_slice_unit!(u64, u4, 64, 4, 0xf, 16);
-to_slice_unit!(u128, u4, 128, 4, 0xf, 32);
-to_slice_unit!(u8, u8, 8, 8, 0xff, 1);
-to_slice_unit!(u16, u8, 16, 8, 0xff, 2);
-to_slice_unit!(u32, u8, 32, 8, 0xff, 4);
-to_slice_unit!(u64, u8, 64, 8, 0xff, 8);
-to_slice_unit!(u128, u8, 128, 8, 0xff, 16);
 
 #[cfg(test)]
 mod tests {
