@@ -246,6 +246,22 @@ unsigned_from!(u4, u32);
 unsigned_from!(u4, u64);
 unsigned_from!(u4, u128);
 
+macro_rules! convert {
+    ($base:tt, $to:tt) => {
+        impl Convert<$to, $base> for $to {
+            fn from_base(base: $base) -> $to {
+                $to::from_be_bytes(base)
+            }
+        }
+    };
+}
+
+convert!([u8; 1], u8);
+convert!([u8; 2], u16);
+convert!([u8; 4], u32);
+convert!([u8; 8], u64);
+convert!([u8; 16], u128);
+
 #[cfg(test)]
 mod tests {
     extern crate std;
@@ -264,6 +280,8 @@ mod tests {
 
     #[test]
     fn test_unsigned_conversions() {
+        let bytes: &[u8] = [0, 0].as_slice();
+        let i = u16::from_base(bytes.try_into().unwrap());
         for n in 0..=255 {
             assert_eq!(u2::from(n), (n & u2::MASK).into());
         }
