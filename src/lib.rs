@@ -11,3 +11,4 @@ pub type u4 = unsigned::u4;
 pub trait Convert<T, B> {
     fn from_base(base: B) -> T;
 }
+
