@@ -1,6 +1,5 @@
 extern crate alloc;
 
-use crate::Convert;
 use alloc::fmt;
 use alloc::format;
 use alloc::string::String;
