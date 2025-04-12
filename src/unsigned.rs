@@ -9,13 +9,13 @@ use core::ops::{
 };
 
 macro_rules! unsigned {
-    ($name:ident, $base:ty, $bits:tt, $base_bits:tt, $slice:tt) => {
+    ($name:ident, $bits:tt, $slice:tt) => {
         #[allow(non_camel_case_types)]
         #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
-        pub struct $name($base);
+        pub struct $name(u8);
 
         impl $name {
-            const MASK: $base = (1 << Self::BITS) - 1;
+            const MASK: u8 = (1 << $bits) - 1;
 
             pub const BITS: u32 = $bits;
             pub const ZERO: $name = $name(0);
@@ -23,9 +23,9 @@ macro_rules! unsigned {
             pub const MIN: $name = $name(0);
             pub const MAX: $name = $name(Self::MASK);
 
-            pub fn from_base(byte: $base) -> [$name; $slice] {
+            pub fn from_exact(byte: u8) -> [$name; $slice] {
                 let mut v: [$name; $slice] = [$name(0); $slice];
-                let mut b: $base = $base_bits;
+                let mut b: u8 = u8::BITS as u8;
                 for i in 0..$slice {
                     b -= $bits;
                     v[i] = $name((byte >> b) & Self::MASK);
@@ -34,7 +34,7 @@ macro_rules! unsigned {
             }
 
             pub fn leading_zeros(&self) -> u32 {
-                self.0.leading_zeros() - ($base_bits - Self::BITS)
+                self.0.leading_zeros() - (u8::BITS - Self::BITS)
             }
 
             pub fn trailing_zeros(&self) -> u32 {
@@ -65,15 +65,75 @@ macro_rules! unsigned {
             }
         }
 
-        impl From<$base> for $name {
-            fn from(value: $base) -> $name {
+        impl From<u8> for $name {
+            fn from(value: u8) -> $name {
                 $name(value & Self::MASK)
             }
         }
 
-        impl From<$name> for $base {
-            fn from(value: $name) -> $base {
-                value.0 as $base
+        impl From<$name> for u8 {
+            fn from(value: $name) -> u8 {
+                value.0 as u8
+            }
+        }
+
+        impl From<u16> for $name {
+            fn from(value: u16) -> $name {
+                $name((value & (Self::MASK as u16)) as u8)
+            }
+        }
+
+        impl From<$name> for u16 {
+            fn from(value: $name) -> u16 {
+                value.0 as u16
+            }
+        }
+
+        impl From<u32> for $name {
+            fn from(value: u32) -> $name {
+                $name((value & (Self::MASK as u32)) as u8)
+            }
+        }
+
+        impl From<$name> for u32 {
+            fn from(value: $name) -> u32 {
+                value.0 as u32
+            }
+        }
+
+        impl From<u64> for $name {
+            fn from(value: u64) -> $name {
+                $name((value & (Self::MASK as u64)) as u8)
+            }
+        }
+
+        impl From<$name> for u64 {
+            fn from(value: $name) -> u64 {
+                value.0 as u64
+            }
+        }
+
+        impl From<u128> for $name {
+            fn from(value: u128) -> $name {
+                $name((value & (Self::MASK as u128)) as u8)
+            }
+        }
+
+        impl From<$name> for u128 {
+            fn from(value: $name) -> u128 {
+                value.0 as u128
+            }
+        }
+
+        impl From<usize> for $name {
+            fn from(value: usize) -> $name {
+                $name((value & (Self::MASK as usize)) as u8)
+            }
+        }
+
+        impl From<$name> for usize {
+            fn from(value: $name) -> usize {
+                value.0 as usize
             }
         }
 
@@ -214,8 +274,8 @@ macro_rules! unsigned_wrapping_ops {
     };
 }
 
-unsigned!(u2, u8, 2, 8, 4);
-unsigned!(u4, u8, 4, 8, 2);
+unsigned!(u2, 2, 4);
+unsigned!(u4, 4, 2);
 
 unsigned_ops!(u2);
 unsigned_ops!(u4);
@@ -224,24 +284,6 @@ unsigned_overflowing_ops!(u2);
 unsigned_overflowing_ops!(u4);
 unsigned_wrapping_ops!(u2);
 unsigned_wrapping_ops!(u4);
-
-macro_rules! unsigned_from {
-    ($from:ty, $to:ty) => {
-        impl From<$from> for $to {
-            fn from(value: $from) -> $to {
-                value.0.into()
-            }
-        }
-    };
-}
-unsigned_from!(u2, u16);
-unsigned_from!(u2, u32);
-unsigned_from!(u2, u64);
-unsigned_from!(u2, u128);
-unsigned_from!(u4, u16);
-unsigned_from!(u4, u32);
-unsigned_from!(u4, u64);
-unsigned_from!(u4, u128);
 
 #[cfg(test)]
 mod tests {
@@ -270,11 +312,11 @@ mod tests {
 
     #[test]
     fn test_unsigned_from_base() {
-        let slice = u4::from_base(1);
+        let slice = u4::from_exact(1);
         assert_eq!(slice[0], 0.into());
         assert_eq!(slice[1], 1.into());
         assert_eq!(slice.len(), 2);
-        let slice = u4::from_base(16);
+        let slice = u4::from_exact(16);
         assert_eq!(slice[0], 1.into());
         assert_eq!(slice[1], 0.into());
         assert_eq!(slice.len(), 2);
