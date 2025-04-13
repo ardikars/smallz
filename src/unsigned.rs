@@ -277,6 +277,18 @@ macro_rules! unsigned_wrapping_ops {
 unsigned!(u2, 2, 4);
 unsigned!(u4, 4, 2);
 
+impl From<u4> for u2 {
+    fn from(value: u4) -> u2 {
+        u2(value.0 & Self::MASK)
+    }
+}
+
+impl From<u2> for u4 {
+    fn from(value: u2) -> u4 {
+        u4(value.0)
+    }
+}
+
 unsigned_ops!(u2);
 unsigned_ops!(u4);
 
