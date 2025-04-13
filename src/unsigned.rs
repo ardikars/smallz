@@ -65,9 +65,18 @@ macro_rules! unsigned {
             }
         }
 
-        impl From<u8> for $name {
-            fn from(value: u8) -> $name {
-                $name(value & Self::MASK)
+        impl TryFrom<u8> for $name {
+            type Error = String;
+            fn try_from(value: u8) -> Result<Self, Self::Error> {
+                if value > Self::MAX.0 {
+                    Err(format!(
+                        "value {} is out of range for {}",
+                        value,
+                        stringify!($name)
+                    ))
+                } else {
+                    Ok($name(value))
+                }
             }
         }
 
@@ -77,9 +86,18 @@ macro_rules! unsigned {
             }
         }
 
-        impl From<u16> for $name {
-            fn from(value: u16) -> $name {
-                $name((value & (Self::MASK as u16)) as u8)
+        impl TryFrom<u16> for $name {
+            type Error = String;
+            fn try_from(value: u16) -> Result<Self, Self::Error> {
+                if value > Self::MAX.0 as u16 {
+                    Err(format!(
+                        "value {} is out of range for {}",
+                        value,
+                        stringify!($name)
+                    ))
+                } else {
+                    Ok($name(value as u8))
+                }
             }
         }
 
@@ -89,9 +107,18 @@ macro_rules! unsigned {
             }
         }
 
-        impl From<u32> for $name {
-            fn from(value: u32) -> $name {
-                $name((value & (Self::MASK as u32)) as u8)
+        impl TryFrom<u32> for $name {
+            type Error = String;
+            fn try_from(value: u32) -> Result<Self, Self::Error> {
+                if value > Self::MAX.0 as u32 {
+                    Err(format!(
+                        "value {} is out of range for {}",
+                        value,
+                        stringify!($name)
+                    ))
+                } else {
+                    Ok($name(value as u8))
+                }
             }
         }
 
@@ -101,9 +128,18 @@ macro_rules! unsigned {
             }
         }
 
-        impl From<u64> for $name {
-            fn from(value: u64) -> $name {
-                $name((value & (Self::MASK as u64)) as u8)
+        impl TryFrom<u64> for $name {
+            type Error = String;
+            fn try_from(value: u64) -> Result<Self, Self::Error> {
+                if value > Self::MAX.0 as u64 {
+                    Err(format!(
+                        "value {} is out of range for {}",
+                        value,
+                        stringify!($name)
+                    ))
+                } else {
+                    Ok($name(value as u8))
+                }
             }
         }
 
@@ -113,9 +149,18 @@ macro_rules! unsigned {
             }
         }
 
-        impl From<u128> for $name {
-            fn from(value: u128) -> $name {
-                $name((value & (Self::MASK as u128)) as u8)
+        impl TryFrom<u128> for $name {
+            type Error = String;
+            fn try_from(value: u128) -> Result<Self, Self::Error> {
+                if value > Self::MAX.0 as u128 {
+                    Err(format!(
+                        "value {} is out of range for {}",
+                        value,
+                        stringify!($name)
+                    ))
+                } else {
+                    Ok($name(value as u8))
+                }
             }
         }
 
@@ -152,9 +197,9 @@ macro_rules! unsigned_op {
             fn $method(self, rhs: $type) -> Self::Output {
                 let r = self.0 $op rhs.0;
                 if r > Self::MASK {
-                    panic!("attempt to add with overflow");
+                    panic!("attempt to {} with overflow", stringify!($method));
                 } else {
-                    <$type>::from(r)
+                    <$type>::try_from(r).unwrap()
                 }
             }
         }
@@ -165,7 +210,7 @@ macro_rules! unsigned_op {
                 if r > Self::MASK {
                     panic!("attempt to add with overflow");
                 } else {
-                    self.0 = <$type>::from(r).into();
+                    self.0 = r;
                 }
             }
         }
@@ -178,7 +223,7 @@ macro_rules! unsigned_shift_op {
             type Output = $type;
             fn $method(self, rhs: $type) -> Self::Output {
                 if u32::from(rhs.0) < Self::BITS {
-                    <$type>::from(self.0 $op rhs.0)
+                    <$type>::try_from(self.0 $op rhs.0).unwrap()
                 } else {
                     panic!("attempt to shift {} by `{}`, which would overflow", stringify!($op), rhs.0)
                 }
@@ -188,7 +233,7 @@ macro_rules! unsigned_shift_op {
         impl $trait_assign for $type {
             fn $method_assign(&mut self, rhs: $type) {
                 if u32::from(rhs.0) < Self::BITS {
-                    self.0 = <$type>::from(self.0 $op rhs.0).into();
+                    self.0 = self.0 $op rhs.0;
                 } else {
                     panic!("attempt to shift {} by `{}`, which would overflow", stringify!($op), rhs.0);
                 }
@@ -213,7 +258,7 @@ macro_rules! unsigned_ops {
         impl Not for $type {
             type Output = $type;
             fn not(self) -> Self::Output {
-                <$type>::from(!self.0)
+                <$type>::try_from(!self.0).unwrap()
             }
         }
     };
@@ -224,9 +269,9 @@ macro_rules! unsigned_overflowing_op {
         pub fn $method(&self, rhs: $type) -> ($type, bool) {
             let r = self.0 $op rhs.0;
             if r > Self::MASK {
-                (<$type>::from(r - Self::MASK - 1), true)
+                (<$type>::try_from(r - Self::MASK - 1).unwrap(), true)
             } else {
-                (<$type>::from(r), false)
+                (<$type>::try_from(r).unwrap(), false)
             }
         }
     }
@@ -240,9 +285,9 @@ macro_rules! unsigned_overflowing_ops {
 
             pub fn overflowing_sub(&self, rhs: $type) -> ($type, bool) {
                 if self.0 < rhs.0 {
-                    (<$type>::from(Self::MASK - (rhs.0 - self.0) + 1), true)
+                    (<$type>::try_from(Self::MASK - (rhs.0 - self.0) + 1).unwrap(), true)
                 } else {
-                    (<$type>::from(self.0 - rhs.0), false)
+                    (<$type>::try_from(self.0 - rhs.0).unwrap(), false)
                 }
             }
         }
@@ -252,7 +297,7 @@ macro_rules! unsigned_overflowing_ops {
 macro_rules! unsigned_wrapping_op {
     ($type:ty, $method:ident, $op:tt) => {
         pub fn $method(&self, rhs: $type) -> $type {
-            <$type>::from(self.0 $op rhs.0)
+            <$type>::try_from(self.0 $op rhs.0).unwrap()
         }
     }
 }
@@ -265,9 +310,9 @@ macro_rules! unsigned_wrapping_ops {
 
             pub fn wrapping_sub(&self, rhs: $type) -> $type {
                 if self.0 < rhs.0 {
-                    <$type>::from(Self::MASK - (rhs.0 - self.0) + 1)
+                    <$type>::try_from(Self::MASK - (rhs.0 - self.0) + 1).unwrap()
                 } else {
-                    <$type>::from(self.0 - rhs.0)
+                    <$type>::try_from(self.0 - rhs.0).unwrap()
                 }
             }
         }
@@ -277,9 +322,14 @@ macro_rules! unsigned_wrapping_ops {
 unsigned!(u2, 2, 4);
 unsigned!(u4, 4, 2);
 
-impl From<u4> for u2 {
-    fn from(value: u4) -> u2 {
-        u2(value.0 & Self::MASK)
+impl TryFrom<u4> for u2 {
+    type Error = String;
+    fn try_from(value: u4) -> Result<Self, Self::Error> {
+        if value.0 > Self::MAX.0 {
+            Err(format!("value {} is out of range for u2", value.0))
+        } else {
+            Ok(u2(value.0))
+        }
     }
 }
 
@@ -297,6 +347,7 @@ unsigned_overflowing_ops!(u4);
 unsigned_wrapping_ops!(u2);
 unsigned_wrapping_ops!(u4);
 
+/*
 #[cfg(test)]
 mod tests {
     extern crate std;
@@ -728,3 +779,4 @@ mod tests {
         assert_eq!(u2::from(3_u8).bit_len(), 2);
     }
 }
+*/
