@@ -347,7 +347,6 @@ unsigned_overflowing_ops!(u4);
 unsigned_wrapping_ops!(u2);
 unsigned_wrapping_ops!(u4);
 
-/*
 #[cfg(test)]
 mod tests {
     extern crate std;
@@ -365,418 +364,410 @@ mod tests {
     }
 
     #[test]
-    fn test_unsigned_conversions() {
-        for n in 0..=255 {
-            assert_eq!(u2::from(n), (n & u2::MASK).into());
-        }
-    }
-
-    #[test]
     fn test_unsigned_from_base() {
         let slice = u4::from_exact(1);
-        assert_eq!(slice[0], 0_u8.into());
-        assert_eq!(slice[1], 1_u8.into());
+        assert_eq!(slice[0], u4::try_from(0_u8).unwrap());
+        assert_eq!(slice[1], u4::try_from(1_u8).unwrap());
         assert_eq!(slice.len(), 2);
         let slice = u4::from_exact(16);
-        assert_eq!(slice[0], 1_u8.into());
-        assert_eq!(slice[1], 0_u8.into());
+        assert_eq!(slice[0], u4::try_from(1_u8).unwrap());
+        assert_eq!(slice[1], u4::try_from(0_u8).unwrap());
         assert_eq!(slice.len(), 2);
     }
 
     #[test]
     fn test_unsigned_add_overflow() {
-        assert_panic!(u2::from(1_u8) + u2::from(3_u8));
-        assert_panic!(u2::from(2_u8) + u2::from(2_u8));
-        assert_panic!(u2::from(2_u8) + u2::from(3_u8));
-        assert_panic!(u2::from(3_u8) + u2::from(1_u8));
-        assert_panic!(u2::from(3_u8) + u2::from(2_u8));
-        assert_panic!(u2::from(3_u8) + u2::from(3_u8));
+        assert_panic!(u2::try_from(1_u8).unwrap() + u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() + u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() + u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() + u2::try_from(1_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() + u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() + u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_overflowing_add() {
-        assert_eq!(u2::from(1_u8).overflowing_add(u2::from(3_u8)), (0_u8.into(), true));
-        assert_eq!(u2::from(2_u8).overflowing_add(u2::from(2_u8)), (0_u8.into(), true));
-        assert_eq!(u2::from(2_u8).overflowing_add(u2::from(3_u8)), (1_u8.into(), true));
-        assert_eq!(u2::from(3_u8).overflowing_add(u2::from(1_u8)), (0_u8.into(), true));
-        assert_eq!(u2::from(3_u8).overflowing_add(u2::from(2_u8)), (1_u8.into(), true));
-        assert_eq!(u2::from(3_u8).overflowing_add(u2::from(3_u8)), (2_u8.into(), true));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_add(u2::try_from(3_u8).unwrap()), (u2::try_from(0_u8).unwrap(), true));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_add(u2::try_from(2_u8).unwrap()), (u2::try_from(0_u8).unwrap(), true));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_add(u2::try_from(3_u8).unwrap()), (u2::try_from(1_u8).unwrap(), true));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_add(u2::try_from(1_u8).unwrap()), (u2::try_from(0_u8).unwrap(), true));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_add(u2::try_from(2_u8).unwrap()), (u2::try_from(1_u8).unwrap(), true));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_add(u2::try_from(3_u8).unwrap()), (u2::try_from(2_u8).unwrap(), true));
         // not overflow
-        assert_eq!(u2::from(0_u8).overflowing_add(u2::from(0_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(0_u8).overflowing_add(u2::from(1_u8)), (1_u8.into(), false));
-        assert_eq!(u2::from(0_u8).overflowing_add(u2::from(2_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(0_u8).overflowing_add(u2::from(3_u8)), (3_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_add(u2::from(0_u8)), (1_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_add(u2::from(1_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_add(u2::from(2_u8)), (3_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_add(u2::from(0_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_add(u2::from(1_u8)), (3_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_add(u2::from(0_u8)), (3_u8.into(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_add(u2::try_from(0_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_add(u2::try_from(1_u8).unwrap()), (u2::try_from(1_u8).unwrap(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_add(u2::try_from(2_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_add(u2::try_from(3_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_add(u2::try_from(0_u8).unwrap()), (u2::try_from(1_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_add(u2::try_from(1_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_add(u2::try_from(2_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_add(u2::try_from(0_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_add(u2::try_from(1_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_add(u2::try_from(0_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
     }
 
     #[test]
     fn test_unsigned_wrapping_add() {
-        assert_eq!(u2::from(1_u8).wrapping_add(u2::from(3_u8)), 0_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_add(u2::from(2_u8)), 0_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_add(u2::from(3_u8)), 1_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_add(u2::from(1_u8)), 0_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_add(u2::from(2_u8)), 1_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_add(u2::from(3_u8)), 2_u8.into());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_add(u2::try_from(3_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_add(u2::try_from(2_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_add(u2::try_from(3_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_add(u2::try_from(1_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_add(u2::try_from(2_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_add(u2::try_from(3_u8).unwrap()), u2::try_from(2_u8).unwrap());
         // not overflow
-        assert_eq!(u2::from(0_u8).wrapping_add(u2::from(0_u8)), 0_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_add(u2::from(1_u8)), 1_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_add(u2::from(2_u8)), 2_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_add(u2::from(3_u8)), 3_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_add(u2::from(0_u8)), 1_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_add(u2::from(1_u8)), 2_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_add(u2::from(2_u8)), 3_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_add(u2::from(0_u8)), 2_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_add(u2::from(1_u8)), 3_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_add(u2::from(0_u8)), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_add(u2::try_from(0_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_add(u2::try_from(1_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_add(u2::try_from(2_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_add(u2::try_from(3_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_add(u2::try_from(0_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_add(u2::try_from(1_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_add(u2::try_from(2_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_add(u2::try_from(0_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_add(u2::try_from(1_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_add(u2::try_from(0_u8).unwrap()), u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_add() {
-        assert_eq!(u2::from(0_u8) + u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) + u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(0_u8) + u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(0_u8) + u2::from(3_u8), 3_u8.into());
-        assert_eq!(u2::from(1_u8) + u2::from(0_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) + u2::from(1_u8), 2_u8.into());
-        assert_eq!(u2::from(1_u8) + u2::from(2_u8), 3_u8.into());
-        assert_eq!(u2::from(2_u8) + u2::from(0_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) + u2::from(1_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) + u2::from(0_u8), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() + u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() + u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() + u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() + u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() + u2::try_from(0_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() + u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() + u2::try_from(2_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() + u2::try_from(0_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() + u2::try_from(1_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() + u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_sub_overflow() {
-        assert_panic!(u2::from(0_u8) - u2::from(1_u8));
-        assert_panic!(u2::from(0_u8) - u2::from(2_u8));
-        assert_panic!(u2::from(0_u8) - u2::from(3_u8));
-        assert_panic!(u2::from(1_u8) - u2::from(2_u8));
-        assert_panic!(u2::from(1_u8) - u2::from(3_u8));
-        assert_panic!(u2::from(2_u8) - u2::from(3_u8));
+        assert_panic!(u2::try_from(0_u8).unwrap() - u2::try_from(1_u8).unwrap());
+        assert_panic!(u2::try_from(0_u8).unwrap() - u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(0_u8).unwrap() - u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() - u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() - u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() - u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_overflowing_sub() {
-        assert_eq!(u2::from(0_u8).overflowing_sub(u2::from(1_u8)), (3_u8.into(), true));
-        assert_eq!(u2::from(0_u8).overflowing_sub(u2::from(2_u8)), (2_u8.into(), true));
-        assert_eq!(u2::from(0_u8).overflowing_sub(u2::from(3_u8)), (1_u8.into(), true));
-        assert_eq!(u2::from(1_u8).overflowing_sub(u2::from(2_u8)), (3_u8.into(), true));
-        assert_eq!(u2::from(1_u8).overflowing_sub(u2::from(3_u8)), (2_u8.into(), true));
-        assert_eq!(u2::from(2_u8).overflowing_sub(u2::from(3_u8)), (3_u8.into(), true));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_sub(u2::try_from(1_u8).unwrap()), (u2::try_from(3_u8).unwrap(), true));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_sub(u2::try_from(2_u8).unwrap()), (u2::try_from(2_u8).unwrap(), true));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_sub(u2::try_from(3_u8).unwrap()), (u2::try_from(1_u8).unwrap(), true));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_sub(u2::try_from(2_u8).unwrap()), (u2::try_from(3_u8).unwrap(), true));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_sub(u2::try_from(3_u8).unwrap()), (u2::try_from(2_u8).unwrap(), true));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_sub(u2::try_from(3_u8).unwrap()), (u2::try_from(3_u8).unwrap(), true));
         // not overflow
-        assert_eq!(u2::from(0_u8).overflowing_sub(u2::from(0_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_sub(u2::from(0_u8)), (1_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_sub(u2::from(1_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_sub(u2::from(0_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_sub(u2::from(1_u8)), (1_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_sub(u2::from(2_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_sub(u2::from(0_u8)), (3_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_sub(u2::from(1_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_sub(u2::from(2_u8)), (1_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_sub(u2::from(3_u8)), (0_u8.into(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_sub(u2::try_from(0_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_sub(u2::try_from(0_u8).unwrap()), (u2::try_from(1_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_sub(u2::try_from(1_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_sub(u2::try_from(0_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_sub(u2::try_from(1_u8).unwrap()), (u2::try_from(1_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_sub(u2::try_from(2_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_sub(u2::try_from(0_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_sub(u2::try_from(1_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_sub(u2::try_from(2_u8).unwrap()), (u2::try_from(1_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_sub(u2::try_from(3_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
     }
 
     #[test]
     fn test_unsigned_wrapping_sub() {
-        assert_eq!(u2::from(0_u8).wrapping_sub(u2::from(1_u8)), 3_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_sub(u2::from(2_u8)), 2_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_sub(u2::from(3_u8)), 1_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_sub(u2::from(2_u8)), 3_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_sub(u2::from(3_u8)), 2_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_sub(u2::from(3_u8)), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_sub(u2::try_from(1_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_sub(u2::try_from(2_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_sub(u2::try_from(3_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_sub(u2::try_from(2_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_sub(u2::try_from(3_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_sub(u2::try_from(3_u8).unwrap()), u2::try_from(3_u8).unwrap());
         // not overflow
-        assert_eq!(u2::from(0_u8).wrapping_sub(u2::from(0_u8)), 0_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_sub(u2::from(0_u8)), 1_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_sub(u2::from(1_u8)), 0_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_sub(u2::from(0_u8)), 2_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_sub(u2::from(1_u8)), 1_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_sub(u2::from(2_u8)), 0_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_sub(u2::from(0_u8)), 3_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_sub(u2::from(1_u8)), 2_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_sub(u2::from(2_u8)), 1_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_sub(u2::from(3_u8)), 0_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_sub(u2::try_from(0_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_sub(u2::try_from(0_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_sub(u2::try_from(1_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_sub(u2::try_from(0_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_sub(u2::try_from(1_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_sub(u2::try_from(2_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_sub(u2::try_from(0_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_sub(u2::try_from(1_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_sub(u2::try_from(2_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_sub(u2::try_from(3_u8).unwrap()), u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_sub() {
-        assert_eq!(u2::from(0_u8) - u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) - u2::from(0_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) - u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) - u2::from(0_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) - u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(2_u8) - u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(3_u8) - u2::from(0_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) - u2::from(1_u8), 2_u8.into());
-        assert_eq!(u2::from(3_u8) - u2::from(2_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) - u2::from(3_u8), 0_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() - u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() - u2::try_from(0_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() - u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() - u2::try_from(0_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() - u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() - u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() - u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() - u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() - u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() - u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_mul_overflow() {
-        assert_panic!(u2::from(2_u8) * u2::from(2_u8));
-        assert_panic!(u2::from(2_u8) * u2::from(3_u8));
-        assert_panic!(u2::from(3_u8) * u2::from(2_u8));
-        assert_panic!(u2::from(3_u8) * u2::from(3_u8));
+        assert_panic!(u2::try_from(2_u8).unwrap() * u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() * u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() * u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() * u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_overflowing_mul() {
-        assert_eq!(u2::from(2_u8).overflowing_mul(u2::from(2_u8)), (0_u8.into(), true));
-        assert_eq!(u2::from(2_u8).overflowing_mul(u2::from(3_u8)), (2_u8.into(), true));
-        assert_eq!(u2::from(3_u8).overflowing_mul(u2::from(2_u8)), (2_u8.into(), true));
-        assert_eq!(u2::from(3_u8).overflowing_mul(u2::from(3_u8)), (1_u8.into(), true));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_mul(u2::try_from(2_u8).unwrap()), (u2::try_from(0_u8).unwrap(), true));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_mul(u2::try_from(3_u8).unwrap()), (u2::try_from(2_u8).unwrap(), true));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_mul(u2::try_from(2_u8).unwrap()), (u2::try_from(2_u8).unwrap(), true));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_mul(u2::try_from(3_u8).unwrap()), (u2::try_from(1_u8).unwrap(), true));
         // not overflow
-        assert_eq!(u2::from(0_u8).overflowing_mul(u2::from(0_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(0_u8).overflowing_mul(u2::from(1_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(0_u8).overflowing_mul(u2::from(2_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(0_u8).overflowing_mul(u2::from(3_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_mul(u2::from(0_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_mul(u2::from(1_u8)), (1_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_mul(u2::from(2_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(1_u8).overflowing_mul(u2::from(3_u8)), (3_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_mul(u2::from(0_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(2_u8).overflowing_mul(u2::from(1_u8)), (2_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_mul(u2::from(0_u8)), (0_u8.into(), false));
-        assert_eq!(u2::from(3_u8).overflowing_mul(u2::from(1_u8)), (3_u8.into(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_mul(u2::try_from(0_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_mul(u2::try_from(1_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_mul(u2::try_from(2_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(0_u8).unwrap().overflowing_mul(u2::try_from(3_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_mul(u2::try_from(0_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_mul(u2::try_from(1_u8).unwrap()), (u2::try_from(1_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_mul(u2::try_from(2_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(1_u8).unwrap().overflowing_mul(u2::try_from(3_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_mul(u2::try_from(0_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(2_u8).unwrap().overflowing_mul(u2::try_from(1_u8).unwrap()), (u2::try_from(2_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_mul(u2::try_from(0_u8).unwrap()), (u2::try_from(0_u8).unwrap(), false));
+        assert_eq!(u2::try_from(3_u8).unwrap().overflowing_mul(u2::try_from(1_u8).unwrap()), (u2::try_from(3_u8).unwrap(), false));
     }
 
     #[test]
     fn test_unsigned_wrapping_mul() {
-        assert_eq!(u2::from(2_u8).wrapping_mul(u2::from(2_u8)), 0_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_mul(u2::from(3_u8)), 2_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_mul(u2::from(2_u8)), 2_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_mul(u2::from(3_u8)), 1_u8.into());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_mul(u2::try_from(2_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_mul(u2::try_from(3_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_mul(u2::try_from(2_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_mul(u2::try_from(3_u8).unwrap()), u2::try_from(1_u8).unwrap());
         // not overflow
-        assert_eq!(u2::from(0_u8).wrapping_mul(u2::from(0_u8)), 0_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_mul(u2::from(1_u8)), 0_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_mul(u2::from(2_u8)), 0_u8.into());
-        assert_eq!(u2::from(0_u8).wrapping_mul(u2::from(3_u8)), 0_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_mul(u2::from(0_u8)), 0_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_mul(u2::from(1_u8)), 1_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_mul(u2::from(2_u8)), 2_u8.into());
-        assert_eq!(u2::from(1_u8).wrapping_mul(u2::from(3_u8)), 3_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_mul(u2::from(0_u8)), 0_u8.into());
-        assert_eq!(u2::from(2_u8).wrapping_mul(u2::from(1_u8)), 2_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_mul(u2::from(0_u8)), 0_u8.into());
-        assert_eq!(u2::from(3_u8).wrapping_mul(u2::from(1_u8)), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_mul(u2::try_from(0_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_mul(u2::try_from(1_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_mul(u2::try_from(2_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap().wrapping_mul(u2::try_from(3_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_mul(u2::try_from(0_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_mul(u2::try_from(1_u8).unwrap()), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_mul(u2::try_from(2_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap().wrapping_mul(u2::try_from(3_u8).unwrap()), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_mul(u2::try_from(0_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap().wrapping_mul(u2::try_from(1_u8).unwrap()), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_mul(u2::try_from(0_u8).unwrap()), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap().wrapping_mul(u2::try_from(1_u8).unwrap()), u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_mul() {
-        assert_eq!(u2::from(0_u8) * u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) * u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) * u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) * u2::from(3_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) * u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) * u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) * u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(1_u8) * u2::from(3_u8), 3_u8.into());
-        assert_eq!(u2::from(2_u8) * u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) * u2::from(1_u8), 2_u8.into());
-        assert_eq!(u2::from(3_u8) * u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(3_u8) * u2::from(1_u8), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() * u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() * u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() * u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() * u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() * u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() * u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() * u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() * u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() * u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() * u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() * u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() * u2::try_from(1_u8).unwrap(), u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_div_by_zero() {
-        assert_panic!(u2::from(0_u8) / u2::from(0_u8));
-        assert_panic!(u2::from(0_u8) / u2::from(0_u8));
-        assert_panic!(u2::from(1_u8) / u2::from(0_u8));
-        assert_panic!(u2::from(2_u8) / u2::from(0_u8));
-        assert_panic!(u2::from(3_u8) / u2::from(0_u8));
+        assert_panic!(u2::try_from(0_u8).unwrap() / u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(0_u8).unwrap() / u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() / u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() / u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() / u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_div() {
-        assert_eq!(u2::from(0_u8) / u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) / u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) / u2::from(3_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) / u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) / u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) / u2::from(3_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) / u2::from(1_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) / u2::from(2_u8), 1_u8.into());
-        assert_eq!(u2::from(2_u8) / u2::from(3_u8), 0_u8.into());
-        assert_eq!(u2::from(3_u8) / u2::from(1_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) / u2::from(2_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) / u2::from(3_u8), 1_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() / u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() / u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() / u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() / u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() / u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() / u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() / u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() / u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() / u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() / u2::try_from(1_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() / u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() / u2::try_from(3_u8).unwrap(), u2::try_from(1_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_rem_by_zero() {
-        assert_panic!(u2::from(0_u8) % u2::from(0_u8));
-        assert_panic!(u2::from(0_u8) % u2::from(0_u8));
-        assert_panic!(u2::from(1_u8) % u2::from(0_u8));
-        assert_panic!(u2::from(2_u8) % u2::from(0_u8));
-        assert_panic!(u2::from(3_u8) % u2::from(0_u8));
+        assert_panic!(u2::try_from(0_u8).unwrap() % u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(0_u8).unwrap() % u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() % u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() % u2::try_from(0_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() % u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_rem() {
-        assert_eq!(u2::from(0_u8) % u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) % u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) % u2::from(3_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) % u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) % u2::from(2_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) % u2::from(3_u8), 1_u8.into());
-        assert_eq!(u2::from(2_u8) % u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) % u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) % u2::from(3_u8), 2_u8.into());
-        assert_eq!(u2::from(3_u8) % u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(3_u8) % u2::from(2_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) % u2::from(3_u8), 0_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() % u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() % u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() % u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() % u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() % u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() % u2::try_from(3_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() % u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() % u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() % u2::try_from(3_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() % u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() % u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() % u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_bitand() {
-        assert_eq!(u2::from(0_u8) & u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) & u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) & u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) & u2::from(3_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) & u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) & u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) & u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) & u2::from(3_u8), 1_u8.into());
-        assert_eq!(u2::from(2_u8) & u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) & u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) & u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) & u2::from(3_u8), 2_u8.into());
-        assert_eq!(u2::from(3_u8) & u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(3_u8) & u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) & u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(3_u8) & u2::from(3_u8), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() & u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() & u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() & u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() & u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() & u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() & u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() & u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() & u2::try_from(3_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() & u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() & u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() & u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() & u2::try_from(3_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() & u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() & u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() & u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() & u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_bitor() {
-        assert_eq!(u2::from(0_u8) | u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) | u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(0_u8) | u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(0_u8) | u2::from(3_u8), 3_u8.into());
-        assert_eq!(u2::from(1_u8) | u2::from(0_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) | u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) | u2::from(2_u8), 3_u8.into());
-        assert_eq!(u2::from(1_u8) | u2::from(3_u8), 3_u8.into());
-        assert_eq!(u2::from(2_u8) | u2::from(0_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) | u2::from(1_u8), 3_u8.into());
-        assert_eq!(u2::from(2_u8) | u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) | u2::from(3_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) | u2::from(0_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) | u2::from(1_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) | u2::from(2_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) | u2::from(3_u8), 3_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() | u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() | u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() | u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() | u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() | u2::try_from(0_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() | u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() | u2::try_from(2_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() | u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() | u2::try_from(0_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() | u2::try_from(1_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() | u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() | u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() | u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() | u2::try_from(1_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() | u2::try_from(2_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() | u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_bitxor() {
-        assert_eq!(u2::from(0_u8) ^ u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) ^ u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(0_u8) ^ u2::from(2_u8), 2_u8.into());
-        assert_eq!(u2::from(0_u8) ^ u2::from(3_u8), 3_u8.into());
-        assert_eq!(u2::from(1_u8) ^ u2::from(0_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) ^ u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) ^ u2::from(2_u8), 3_u8.into());
-        assert_eq!(u2::from(1_u8) ^ u2::from(3_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) ^ u2::from(0_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) ^ u2::from(1_u8), 3_u8.into());
-        assert_eq!(u2::from(2_u8) ^ u2::from(2_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) ^ u2::from(3_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) ^ u2::from(0_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) ^ u2::from(1_u8), 2_u8.into());
-        assert_eq!(u2::from(3_u8) ^ u2::from(2_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) ^ u2::from(3_u8), 0_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() ^ u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() ^ u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() ^ u2::try_from(2_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() ^ u2::try_from(3_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() ^ u2::try_from(0_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() ^ u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() ^ u2::try_from(2_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() ^ u2::try_from(3_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() ^ u2::try_from(0_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() ^ u2::try_from(1_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() ^ u2::try_from(2_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() ^ u2::try_from(3_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() ^ u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() ^ u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() ^ u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() ^ u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_bitnot() {
-        assert_eq!(!u2::from(0_u8), 3_u8.into());
-        assert_eq!(!u2::from(1_u8), 2_u8.into());
-        assert_eq!(!u2::from(2_u8), 1_u8.into());
-        assert_eq!(!u2::from(3_u8), 0_u8.into());
+        assert_eq!(!u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(!u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(!u2::try_from(2_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(!u2::try_from(3_u8).unwrap(), u2::try_from(0_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_shl_overflow() {
-        assert_panic!(u2::from(0_u8) << u2::from(2_u8));
-        assert_panic!(u2::from(0_u8) << u2::from(3_u8));
-        assert_panic!(u2::from(1_u8) << u2::from(2_u8));
-        assert_panic!(u2::from(1_u8) << u2::from(3_u8));
-        assert_panic!(u2::from(2_u8) << u2::from(2_u8));
-        assert_panic!(u2::from(2_u8) << u2::from(3_u8));
-        assert_panic!(u2::from(3_u8) << u2::from(2_u8));
-        assert_panic!(u2::from(3_u8) << u2::from(3_u8));
+        assert_panic!(u2::try_from(0_u8).unwrap() << u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(0_u8).unwrap() << u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() << u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() << u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() << u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() << u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() << u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() << u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_shl() {
-        assert_eq!(u2::from(0_u8) << u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) << u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) << u2::from(0_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) << u2::from(1_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) << u2::from(0_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) << u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(3_u8) << u2::from(0_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) << u2::from(1_u8), 2_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() << u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() << u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() << u2::try_from(0_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() << u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() << u2::try_from(0_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() << u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() << u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() << u2::try_from(1_u8).unwrap(), u2::try_from(2_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_shr_overflow() {
-        assert_panic!(u2::from(0_u8) >> u2::from(2_u8));
-        assert_panic!(u2::from(0_u8) >> u2::from(3_u8));
-        assert_panic!(u2::from(1_u8) >> u2::from(2_u8));
-        assert_panic!(u2::from(1_u8) >> u2::from(3_u8));
-        assert_panic!(u2::from(2_u8) >> u2::from(2_u8));
-        assert_panic!(u2::from(2_u8) >> u2::from(3_u8));
-        assert_panic!(u2::from(3_u8) >> u2::from(2_u8));
-        assert_panic!(u2::from(3_u8) >> u2::from(3_u8));
+        assert_panic!(u2::try_from(0_u8).unwrap() >> u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(0_u8).unwrap() >> u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() >> u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(1_u8).unwrap() >> u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() >> u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(2_u8).unwrap() >> u2::try_from(3_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() >> u2::try_from(2_u8).unwrap());
+        assert_panic!(u2::try_from(3_u8).unwrap() >> u2::try_from(3_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_shr() {
-        assert_eq!(u2::from(0_u8) >> u2::from(0_u8), 0_u8.into());
-        assert_eq!(u2::from(0_u8) >> u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(1_u8) >> u2::from(0_u8), 1_u8.into());
-        assert_eq!(u2::from(1_u8) >> u2::from(1_u8), 0_u8.into());
-        assert_eq!(u2::from(2_u8) >> u2::from(0_u8), 2_u8.into());
-        assert_eq!(u2::from(2_u8) >> u2::from(1_u8), 1_u8.into());
-        assert_eq!(u2::from(3_u8) >> u2::from(0_u8), 3_u8.into());
-        assert_eq!(u2::from(3_u8) >> u2::from(1_u8), 1_u8.into());
+        assert_eq!(u2::try_from(0_u8).unwrap() >> u2::try_from(0_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(0_u8).unwrap() >> u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() >> u2::try_from(0_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(1_u8).unwrap() >> u2::try_from(1_u8).unwrap(), u2::try_from(0_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() >> u2::try_from(0_u8).unwrap(), u2::try_from(2_u8).unwrap());
+        assert_eq!(u2::try_from(2_u8).unwrap() >> u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() >> u2::try_from(0_u8).unwrap(), u2::try_from(3_u8).unwrap());
+        assert_eq!(u2::try_from(3_u8).unwrap() >> u2::try_from(1_u8).unwrap(), u2::try_from(1_u8).unwrap());
     }
 
     #[test]
     fn test_unsigned_bins() {
-        assert_eq!(u2::from(0_u8).to_str_radix(2), "00");
-        assert_eq!(u2::from(1_u8).to_str_radix(2), "01");
-        assert_eq!(u2::from(2_u8).to_str_radix(2), "10");
-        assert_eq!(u2::from(3_u8).to_str_radix(2), "11");
+        assert_eq!(u2::try_from(0_u8).unwrap().to_str_radix(2), "00");
+        assert_eq!(u2::try_from(1_u8).unwrap().to_str_radix(2), "01");
+        assert_eq!(u2::try_from(2_u8).unwrap().to_str_radix(2), "10");
+        assert_eq!(u2::try_from(3_u8).unwrap().to_str_radix(2), "11");
     }
 
     #[test]
     fn test_unsigned_leading_zeros() {
-        assert_eq!(u2::from(0_u8).leading_zeros(), 2);
-        assert_eq!(u2::from(1_u8).leading_zeros(), 1);
-        assert_eq!(u2::from(2_u8).leading_zeros(), 0);
-        assert_eq!(u2::from(3_u8).leading_zeros(), 0);
+        assert_eq!(u2::try_from(0_u8).unwrap().leading_zeros(), 2);
+        assert_eq!(u2::try_from(1_u8).unwrap().leading_zeros(), 1);
+        assert_eq!(u2::try_from(2_u8).unwrap().leading_zeros(), 0);
+        assert_eq!(u2::try_from(3_u8).unwrap().leading_zeros(), 0);
     }
 
     #[test]
     fn test_unsigned_trailing_zeros() {
-        assert_eq!(u2::from(0_u8).trailing_zeros(), 2);
-        assert_eq!(u2::from(1_u8).trailing_zeros(), 0);
-        assert_eq!(u2::from(2_u8).trailing_zeros(), 1);
-        assert_eq!(u2::from(3_u8).trailing_zeros(), 0);
+        assert_eq!(u2::try_from(0_u8).unwrap().trailing_zeros(), 2);
+        assert_eq!(u2::try_from(1_u8).unwrap().trailing_zeros(), 0);
+        assert_eq!(u2::try_from(2_u8).unwrap().trailing_zeros(), 1);
+        assert_eq!(u2::try_from(3_u8).unwrap().trailing_zeros(), 0);
     }
 
     #[test]
     fn test_unsigned_bit_len() {
-        assert_eq!(u2::from(0_u8).bit_len(), 0);
-        assert_eq!(u2::from(1_u8).bit_len(), 1);
-        assert_eq!(u2::from(2_u8).bit_len(), 2);
-        assert_eq!(u2::from(3_u8).bit_len(), 2);
+        assert_eq!(u2::try_from(0_u8).unwrap().bit_len(), 0);
+        assert_eq!(u2::try_from(1_u8).unwrap().bit_len(), 1);
+        assert_eq!(u2::try_from(2_u8).unwrap().bit_len(), 2);
+        assert_eq!(u2::try_from(3_u8).unwrap().bit_len(), 2);
     }
 }
-*/
