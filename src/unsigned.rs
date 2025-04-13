@@ -65,6 +65,12 @@ macro_rules! unsigned {
             }
         }
 
+        impl From<bool> for $name {
+            fn from(value: bool) -> $name {
+                $name(value as u8)
+            }
+        }
+
         impl TryFrom<u8> for $name {
             type Error = String;
             fn try_from(value: u8) -> Result<Self, Self::Error> {
