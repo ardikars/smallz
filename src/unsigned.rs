@@ -3,6 +3,7 @@ extern crate alloc;
 use alloc::fmt;
 use alloc::format;
 use alloc::string::String;
+use core::cmp::Ordering;
 use core::ops::{
     Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Div, DivAssign,
     Mul, MulAssign, Not, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign,
@@ -43,6 +44,22 @@ macro_rules! unsigned {
                     Self::BITS
                 } else {
                     zeros
+                }
+            }
+
+            pub fn min(self, rhs: $name) -> $name {
+                match self.0.cmp(&rhs.0) {
+                    Ordering::Less => self,
+                    Ordering::Greater => rhs,
+                    Ordering::Equal => self,
+                }
+            }
+
+            pub fn max(self, rhs: $name) -> $name {
+                match self.0.cmp(&rhs.0) {
+                    Ordering::Less => rhs,
+                    Ordering::Greater => self,
+                    Ordering::Equal => self,
                 }
             }
 
