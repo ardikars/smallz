@@ -1,5 +1,3 @@
-extern crate alloc;
-
 use alloc::fmt;
 use alloc::format;
 use alloc::string::String;
